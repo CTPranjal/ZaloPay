@@ -1,0 +1,812 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>ZaloPay x CleverTap Zero PII</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout concept: a two-party partnership page. ZaloPay blue on the left, CleverTap red on the right,
+   third-party amber at the edge. Phases run down the page as a joined timeline. */
+:root{
+  --bg:#F4F7FC; --surface:#FFFFFF; --ink:#0F1B33; --muted:#566280; --line:#D9E1EF;
+  --zalo:#0A5CFF; --zalo-ink:#0848B8; --zalo-tint:#E7F0FF; --zalo-solid:#0A5CFF;
+  --ct:#D7203F; --ct-ink:#A5133A; --ct-tint:#FDEAEE; --ct-solid:#D7203F;
+  --prov:#B7791F; --prov-ink:#7C4F00; --prov-tint:#FFF3D6;
+  --real:#0F1B33; --token:#0E8F82; --token-tint:#E2F5F2;
+  --font:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1220; --surface:#121B2E; --ink:#E8EEFB; --muted:#9AA8C4; --line:#26324A;
+    --zalo:#5C9DFF; --zalo-ink:#9CC3FF; --zalo-tint:#10233F; --zalo-solid:#1F63D6;
+    --ct:#FF6483; --ct-ink:#FFA3B6; --ct-tint:#3A1520; --ct-solid:#C21B3A;
+    --prov:#E0A93B; --prov-ink:#F2CB6E; --prov-tint:#352A0E;
+    --real:#E8EEFB; --token:#3CC8B8; --token-tint:#0F2E2B;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1220; --surface:#121B2E; --ink:#E8EEFB; --muted:#9AA8C4; --line:#26324A;
+  --zalo:#5C9DFF; --zalo-ink:#9CC3FF; --zalo-tint:#10233F; --zalo-solid:#1F63D6;
+  --ct:#FF6483; --ct-ink:#FFA3B6; --ct-tint:#3A1520; --ct-solid:#C21B3A;
+  --prov:#E0A93B; --prov-ink:#F2CB6E; --prov-tint:#352A0E;
+  --real:#E8EEFB; --token:#3CC8B8; --token-tint:#0F2E2B;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.55}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 72px}
+h1,h2,h3{line-height:1.2;text-wrap:balance;margin:0}
+h2{font-size:26px;font-weight:800;letter-spacing:-.01em}
+h3{font-size:19px;font-weight:700}
+p{margin:0}
+code,.mono{font-family:var(--mono);font-size:12.5px}
+a{color:var(--zalo-ink)}
+section{margin-top:56px}
+.lede{color:var(--muted);max-width:68ch;margin-top:8px}
+.kicker{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* hero: the partnership */
+.hero{position:relative;display:grid;grid-template-columns:1fr 1fr;border-radius:22px;overflow:hidden;margin-top:4px}
+.party{padding:34px 38px 40px;color:#fff;min-width:0}
+.party.z{background:var(--zalo-solid)}
+.party.c{background:var(--ct-solid)}
+.party .role{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.party .mark{font-size:44px;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-top:10px}
+.party p{margin-top:14px;max-width:34ch;font-size:15px;opacity:.95}
+.party.c{text-align:right;justify-items:end}
+.party.c p{margin-left:auto}
+.link{position:absolute;left:50%;top:50%;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;background:var(--bg);display:grid;place-items:center}
+.link svg{width:56px;height:56px}
+.title-block{margin-top:34px}
+h1{font-size:clamp(30px,5vw,46px);font-weight:800;letter-spacing:-.025em}
+.meta{margin-top:12px;color:var(--muted);font-size:13px}
+.idea{margin-top:22px;padding:20px 24px;border-radius:16px;background:var(--surface);border:1px solid var(--line);font-size:17px;max-width:80ch}
+.idea strong{font-weight:700}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.toc a{font-size:13px;font-weight:600;text-decoration:none;color:var(--ink);padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface)}
+.toc a:hover{border-color:var(--zalo)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--zalo);outline-offset:2px}
+
+/* pills + chips */
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap;line-height:1.6}
+.pill.z{background:var(--zalo-tint);color:var(--zalo-ink)}
+.pill.c{background:var(--ct-tint);color:var(--ct-ink)}
+.pill.p{background:var(--prov-tint);color:var(--prov-ink)}
+.pill.j{background:var(--line);color:var(--ink)}
+.chip{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:500;padding:1px 8px;border-radius:6px;white-space:nowrap}
+.chip.real{background:var(--real);color:var(--bg)}
+.chip.tok{background:var(--token-tint);color:var(--token);border:1px dashed var(--token)}
+.chip.none{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.legend{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:18px;font-size:13px;color:var(--muted);align-items:center}
+.legend span{display:inline-flex;gap:8px;align-items:center}
+.sw{width:30px;height:0;border-top:3px solid var(--real)}
+.sw.t{border-top:2px dashed var(--token)}
+.dot{width:12px;height:12px;border-radius:4px;display:inline-block}
+
+/* diagram */
+.focus{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.focus button{font:inherit;font-size:13px;font-weight:600;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.focus button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.diagram{margin-top:14px;border:1px solid var(--line);border-radius:18px;background:var(--surface);overflow-x:auto}
+.diagram svg{display:block;width:100%;min-width:880px;height:auto}
+.fnote{margin-top:10px;font-size:14px;color:var(--muted);min-height:44px;max-width:80ch}
+.flow svg text{font-family:var(--font)}
+.flow g[data-p]{transition:opacity .2s}
+.flow[data-focus="0"] g[data-p]:not([data-p~="0"]),
+.flow[data-focus="1"] g[data-p]:not([data-p~="1"]),
+.flow[data-focus="2"] g[data-p]:not([data-p~="2"]),
+.flow[data-focus="3"] g[data-p]:not([data-p~="3"]),
+.flow[data-focus="4"] g[data-p]:not([data-p~="4"]){opacity:.16}
+.zone-z{fill:var(--zalo-tint);stroke:var(--zalo);stroke-width:1.5}
+.zone-c{fill:var(--ct-tint);stroke:var(--ct);stroke-width:1.5}
+.zone-p{fill:var(--prov-tint);stroke:var(--prov);stroke-width:1.5}
+.box{fill:var(--surface);stroke-width:1.6}
+.box.z{stroke:var(--zalo)} .box.c{stroke:var(--ct)}
+.zl{font-size:11.5px;font-weight:800;letter-spacing:.12em}
+.zl.z{fill:var(--zalo-ink)} .zl.c{fill:var(--ct-ink)} .zl.p{fill:var(--prov-ink)}
+.bt{font-size:13px;font-weight:700;fill:var(--ink);text-anchor:middle}
+.bs{font-size:11px;fill:var(--muted);text-anchor:middle}
+.zs{font-size:11px;fill:var(--muted)}
+.ar{fill:none;stroke-width:2.4}
+.ar.real{stroke:var(--real);marker-end:url(#m-real)}
+.ar.tok{stroke:var(--token);stroke-width:2.2;stroke-dasharray:6 4;marker-end:url(#m-tok)}
+.ar.key{stroke:var(--muted);stroke-width:1.5;marker-end:url(#m-key)}
+.mk-real{fill:var(--real)} .mk-tok{fill:var(--token)} .mk-key{fill:var(--muted)}
+.lb{font-size:11px;fill:var(--ink)}
+.lb b{font-weight:800}
+.lb.r{text-anchor:end} .lb.m{text-anchor:middle}
+
+/* phases */
+.phase{display:grid;grid-template-columns:64px minmax(0,1fr);gap:0 18px;margin-top:26px}
+.rail{display:flex;flex-direction:column;align-items:center}
+.badge{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:20px;flex:none}
+.badge.z{background:var(--zalo-solid)} .badge.c{background:var(--ct-solid)}
+.badge.j{background:linear-gradient(90deg,var(--zalo-solid) 50%,var(--ct-solid) 50%)}
+.line{flex:1;width:3px;margin-top:6px;background:var(--line);border-radius:2px}
+.phase:last-child .line{display:none}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px 24px;min-width:0}
+.card-h{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between}
+.card .sum{margin-top:6px;color:var(--muted);max-width:72ch}
+.cols{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:20px;margin-top:20px}
+.cols>div,.two>div{min-width:0}
+.cols h4,.two h4{margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.steps li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;font-size:14px}
+.steps li .pill{margin-top:2px;min-width:68px;text-align:center}
+.steps b{font-family:var(--mono);font-weight:500;font-size:12px;margin-right:4px}
+.sees{display:grid;gap:10px}
+.sees .row{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:8px;align-items:center;font-size:13px}
+.sees .where{color:var(--muted);font-size:12.5px}
+.sample{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:8px;font-size:13px}
+.sample .s-l{font-size:11px;color:var(--muted)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr);gap:2px}
+.kv span.k{font-size:11.5px;color:var(--muted)}
+.kv code{word-break:break-all}
+.kv code.r{color:var(--ink);font-weight:500}
+.kv code.t{color:var(--token)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+.two>div{border-radius:14px;padding:14px 16px}
+.two .zb{background:var(--zalo-tint);border-top:4px solid var(--zalo)}
+.two .cb{background:var(--ct-tint);border-top:4px solid var(--ct)}
+.two ul{margin:0;padding-left:18px;display:grid;gap:5px;font-size:14px}
+.foot{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:grid;gap:8px;font-size:13.5px}
+.foot .api{display:flex;flex-wrap:wrap;gap:6px}
+.foot .api code{background:var(--bg);border:1px solid var(--line);padding:2px 8px;border-radius:6px}
+.acc{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.acc strong{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.note{font-size:13px;color:var(--muted);margin-top:12px}
+
+/* tables */
+.tbl{overflow-x:auto;margin-top:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:13.5px}
+th,td{text-align:left;vertical-align:top;padding:11px 14px;border-bottom:1px solid var(--line)}
+th{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td:first-child{font-weight:700;width:18%}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.own3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:20px}
+.own3>div{border-radius:16px;padding:18px 20px;background:var(--surface);border:1px solid var(--line);min-width:0}
+.own3 .zt{border-top:5px solid var(--zalo)} .own3 .ctt{border-top:5px solid var(--ct)} .own3 .jt{border-top:5px solid var(--ink)}
+.own3 ul,.grid3 ul,.team ul{margin:10px 0 0;padding-left:18px;display:grid;gap:5px;font-size:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:20px}
+.grid3>div{border-radius:16px;padding:18px 20px;background:var(--surface);border:1px solid var(--line);min-width:0}
+.grid3 .ok{border-top:5px solid var(--token)} .grid3 .diff{border-top:5px solid var(--prov)} .grid3 .no{border-top:5px solid var(--ct)}
+.teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:20px}
+.team{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 20px;min-width:0}
+.confirm{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:10px}
+.confirm li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-size:14px}
+.src{margin-top:14px;display:grid;gap:8px;font-size:13px}
+.src div{overflow-wrap:anywhere}
+
+@media (max-width:900px){
+  .cols{grid-template-columns:1fr}
+  .own3,.grid3{grid-template-columns:1fr}
+}
+@media (max-width:720px){
+  .hero{grid-template-columns:1fr}
+  .party{padding:26px 24px 44px}
+  .party.c{text-align:left;padding:44px 24px 28px}
+  .party.c p{margin-left:0}
+  .party .mark{font-size:36px}
+  .link{top:auto;left:50%}
+  .hero .link{top:calc(50% )}
+  .phase{grid-template-columns:1fr}
+  .rail{flex-direction:row;gap:12px;align-items:center}
+  .line{display:none}
+  .two{grid-template-columns:1fr}
+  .card{padding:18px 16px}
+}
+@media (prefers-reduced-motion:reduce){.flow g[data-p]{transition:none}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="hero" role="img" aria-label="ZaloPay and CleverTap working together">
+    <div class="party z">
+      <div class="role">Owns the real data</div>
+      <div class="mark">ZaloPay</div>
+      <p>Runs the token vault and the message dispatcher inside Vietnam. Real emails and phone numbers never leave.</p>
+    </div>
+    <div class="party c">
+      <div class="role">Owns the engagement platform</div>
+      <div class="mark">CleverTap</div>
+      <p>Runs segments, campaigns, journeys and reports on tokens. Never stores or sees a real value.</p>
+    </div>
+    <div class="link" aria-hidden="true">
+      <svg viewBox="0 0 56 56" fill="none"><circle cx="21" cy="28" r="14" stroke="var(--zalo)" stroke-width="5"/><circle cx="35" cy="28" r="14" stroke="var(--ct)" stroke-width="5"/></svg>
+    </div>
+  </div>
+
+  <div class="title-block">
+    <div class="kicker">Zero PII, on-premise dispatcher</div>
+    <h1>How ZaloPay and CleverTap keep real customer data in Vietnam</h1>
+    <p class="meta">5 November 2026 · Prepared by CleverTap Solutions Engineering for ZaloPay product, marketing, growth and technology teams</p>
+  </div>
+
+  <p class="idea">Real emails and phone numbers stay in <strong>ZaloPay's vault in Vietnam</strong>. CleverTap works only with <strong>tokens</strong>. The real value is brought back only inside <strong>ZaloPay's own dispatcher</strong>, just long enough to hand the message to the delivery provider.</p>
+
+  <nav class="toc" aria-label="On this page">
+    <a href="#flow">The flow</a>
+    <a href="#phases">Phase by phase</a>
+    <a href="#accountability">Who is accountable</a>
+    <a href="#build">What ZaloPay builds</a>
+    <a href="#limits">Limitations</a>
+  </nav>
+</header>
+
+<section id="flow">
+  <h2>The whole flow on one page</h2>
+  <p class="lede">Heavy solid lines carry a real email or phone number. Dashed teal lines carry a token only. Pick a phase to highlight its steps.</p>
+  <div class="legend">
+    <span><i class="sw"></i> Real value travels</span>
+    <span><i class="sw t"></i> Token only</span>
+    <span><i class="dot" style="background:var(--zalo)"></i> ZaloPay</span>
+    <span><i class="dot" style="background:var(--ct)"></i> CleverTap</span>
+    <span><i class="dot" style="background:var(--prov)"></i> Message provider</span>
+  </div>
+
+  <div class="focus" role="group" aria-label="Highlight a phase">
+    <button type="button" data-f="all" aria-pressed="true">All phases</button>
+    <button type="button" data-f="0" aria-pressed="false">0 Set up</button>
+    <button type="button" data-f="1" aria-pressed="false">1 Tokenize</button>
+    <button type="button" data-f="2" aria-pressed="false">2 Into CleverTap</button>
+    <button type="button" data-f="3" aria-pressed="false">3 Send</button>
+    <button type="button" data-f="4" aria-pressed="false">4 Status back</button>
+  </div>
+
+  <div class="diagram">
+  <svg id="flowsvg" class="flow" viewBox="0 0 1000 720" role="img" aria-label="Data flow between ZaloPay, CleverTap and message providers">
+    <defs>
+      <marker id="m-real" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" class="mk-real"/></marker>
+      <marker id="m-tok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" class="mk-tok"/></marker>
+      <marker id="m-key" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" class="mk-key"/></marker>
+    </defs>
+
+    <rect class="zone-z" x="16" y="40" width="560" height="500" rx="18"/>
+    <text class="zl z" x="36" y="64">ZALOPAY, INSIDE VIETNAM</text>
+    <text class="zs" x="36" y="80">Real emails and phone numbers live here</text>
+
+    <rect class="zone-c" x="640" y="40" width="344" height="500" rx="18"/>
+    <text class="zl c" x="660" y="64">CLEVERTAP CLOUD</text>
+    <text class="zs" x="660" y="80">Only tokens arrive here</text>
+
+    <rect class="zone-p" x="16" y="590" width="560" height="104" rx="18"/>
+    <text class="zl p" x="36" y="616">MESSAGE PROVIDERS</text>
+    <text class="zs" x="36" y="638">Push (FCM, APNs), SMS, email, WhatsApp.</text>
+    <text class="zs" x="36" y="656">They receive the real value so the message can be delivered.</text>
+
+    <!-- boxes -->
+    <g data-p="1 2"><rect class="box z" x="36" y="132" width="140" height="76" rx="12"/>
+      <text class="bt" x="106" y="166">ZaloPay app</text><text class="bs" x="106" y="186">with CleverTap SDK</text></g>
+    <g data-p="0 1"><rect class="box z" x="276" y="132" width="160" height="76" rx="12"/>
+      <text class="bt" x="356" y="166">ZaloPay backend</text><text class="bs" x="356" y="186">API gateway, login, profile</text></g>
+    <g data-p="0 1"><rect class="box z" x="36" y="290" width="140" height="60" rx="12"/>
+      <text class="bt" x="106" y="316">ZaloPay KMS</text><text class="bs" x="106" y="336">holds the key</text></g>
+    <g data-p="0 1 3 4"><rect class="box z" x="256" y="282" width="200" height="88" rx="12"/>
+      <text class="bt" x="356" y="316">Token vault</text><text class="bs" x="356" y="336">real value and token pairs</text><text class="bs" x="356" y="354">CT Vault or ZaloPay's own</text></g>
+    <g data-p="0 3 4"><rect class="box z" x="256" y="422" width="200" height="100" rx="12"/>
+      <text class="bt" x="356" y="458">ZaloPay dispatcher</text><text class="bs" x="356" y="478">runs on ZaloPay servers</text><text class="bs" x="356" y="496">turns tokens into real values</text></g>
+
+    <g data-p="2 3"><rect class="box c" x="670" y="132" width="284" height="76" rx="12"/>
+      <text class="bt" x="812" y="166">Profiles and events</text><text class="bs" x="812" y="186">tokens and non-PII only</text></g>
+    <g data-p="0 3"><rect class="box c" x="670" y="282" width="284" height="88" rx="12"/>
+      <text class="bt" x="812" y="316">Segments, campaigns, journeys</text><text class="bs" x="812" y="336">run on tokens</text><text class="bs" x="812" y="354">builds the message with token placeholders</text></g>
+    <g data-p="4"><rect class="box c" x="670" y="444" width="284" height="76" rx="12"/>
+      <text class="bt" x="812" y="478">Reports and analytics</text><text class="bs" x="812" y="498">delivery status, tokens only</text></g>
+
+    <!-- phase 1 arrows -->
+    <g data-p="1"><path class="ar real" d="M176 158H276"/><text class="lb m" x="226" y="150"><tspan font-weight="800">1a</tspan> real values</text></g>
+    <g data-p="1"><path class="ar tok" d="M276 188H176"/><text class="lb m" x="226" y="206"><tspan font-weight="800">1d</tspan> tokens</text></g>
+    <g data-p="1"><path class="ar real" d="M340 208V282"/><text class="lb r" x="332" y="250"><tspan font-weight="800">1b</tspan> real value</text></g>
+    <g data-p="1"><path class="ar tok" d="M372 282V208"/><text class="lb" x="380" y="250"><tspan font-weight="800">1c</tspan> token</text></g>
+    <g data-p="0 1"><path class="ar key" d="M176 320H256"/><text class="lb m" x="216" y="312">key</text></g>
+
+    <!-- phase 2 -->
+    <g data-p="2"><path class="ar tok" d="M106 132V106H812V132"/><text class="lb m" x="400" y="98"><tspan font-weight="800">2</tspan> tokens and non-PII, via SDK or backend upload</text></g>
+
+    <!-- phase 3 -->
+    <g data-p="3"><path class="ar tok" d="M812 208V282"/><text class="lb" x="822" y="250"><tspan font-weight="800">3</tspan> campaign runs</text></g>
+    <g data-p="3"><path class="ar tok" d="M670 326H608V446H456"/><text class="lb" x="464" y="438"><tspan font-weight="800">4</tspan> tokens in payload</text></g>
+    <g data-p="3"><path class="ar tok" d="M290 422V370"/><path class="ar real" d="M322 370V422"/><text class="lb r" x="282" y="400"><tspan font-weight="800">5a</tspan> token in, <tspan font-weight="800">5b</tspan> real value back</text></g>
+    <g data-p="3"><path class="ar real" d="M290 522V590"/><text class="lb r" x="282" y="562"><tspan font-weight="800">6a</tspan> message with real value</text></g>
+
+    <!-- phase 4 -->
+    <g data-p="4"><path class="ar real" d="M422 590V522"/><text class="lb" x="432" y="562"><tspan font-weight="800">6b</tspan> status callbacks</text></g>
+    <g data-p="4"><path class="ar real" d="M390 422V370"/><path class="ar tok" d="M422 370V422"/><text class="lb" x="432" y="400"><tspan font-weight="800">7a</tspan> real in, <tspan font-weight="800">7b</tspan> token back</text></g>
+    <g data-p="4"><path class="ar tok" d="M456 496H670"/><text class="lb" x="466" y="488"><tspan font-weight="800">8</tspan> status, tokens only</text></g>
+  </svg>
+  </div>
+  <p class="fnote" id="fnote" aria-live="polite">All phases shown. Redrawn from the documented steps in CleverTap's Zero PII integration guide and on-prem architecture page.</p>
+</section>
+
+<section id="phases">
+  <h2>Phase by phase</h2>
+  <p class="lede">Each phase says who acts, who can see the real value, what the data looks like, and who is accountable. Values in the examples are illustrative.</p>
+
+  <!-- PHASE 0 -->
+  <div class="phase" id="phase-0">
+    <div class="rail"><div class="badge j">0</div><div class="line"></div></div>
+    <div class="card">
+      <div class="card-h"><h3>Set up together</h3><span class="pill j">Joint</span></div>
+      <p class="sum">Before any customer data moves, both teams agree the setup and ZaloPay prepares its environment in Vietnam.</p>
+      <div class="cols">
+        <div>
+          <h4>What happens</h4>
+          <ul class="steps">
+            <li><span class="pill j">Joint</span><span>Agree the setup: on-premise dispatcher, and the vault is either CleverTap's CT Vault or ZaloPay's own.</span></li>
+            <li><span class="pill j">Joint</span><span>Confirm channels and exact providers against the supported list.</span></li>
+            <li><span class="pill z">ZaloPay</span><span>Share scale inputs: users, daily and monthly actives, fields to tokenize, peak messages per minute, channels, cloud and region.</span></li>
+            <li><span class="pill c">CleverTap</span><span>Return a sizing sheet and the list of components to provision.</span></li>
+            <li><span class="pill z">ZaloPay</span><span>Provision the stack in Vietnam. Deploy the vault and dispatcher from CleverTap's Docker images and Helm charts.</span></li>
+            <li><span class="pill z">ZaloPay</span><span>Lock down the network and point provider callbacks at the dispatcher.</span></li>
+            <li><span class="pill c">CleverTap</span><span>Enable the account, set the tokenized fields, and register ZaloPay's dispatcher URL and key.</span></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Customer data</h4>
+          <p class="note" style="margin-top:0">No customer data moves in this phase.</p>
+        </div>
+        <div>
+          <h4>Decisions to make</h4>
+          <div class="sample">
+            <div class="kv"><span class="k">Fields to tokenize</span><span>Email and phone first, plus any other personal fields ZaloPay chooses.</span></div>
+            <div class="kv"><span class="k">Not tokenized</span><span>Push tokens, because they are not personal data. For remarketing, GAID and IDFA need no tokenization, and tokenizing email and phone is enough. City, device and behaviour stay as normal data.</span></div>
+            <div class="kv"><span class="k">Vault</span><span>CT Vault, or ZaloPay's own if it follows CleverTap's Tokenize and Detokenize contract.</span></div>
+            <div class="kv"><span class="k">Providers</span><span>Exact SMS, email, WhatsApp and push providers.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="two">
+        <div class="zb"><h4>ZaloPay does</h4><ul>
+          <li>Provisions servers, database, cache, auth service and Kubernetes or OpenShift nodes in Vietnam</li>
+          <li>Sets up its own key management for the vault key</li>
+          <li>Opens the network path so CleverTap can reach the dispatcher over HTTPS</li>
+          <li>Keeps Tokenize on a private network and Detokenize on a separate, allowlisted subnet</li>
+        </ul></div>
+        <div class="cb"><h4>CleverTap does</h4><ul>
+          <li>Supplies the sizing sheet, images, charts and setup guidance</li>
+          <li>Supplies CT Vault software if chosen</li>
+          <li>Enables tokenization on the account and selects the tokenized fields</li>
+          <li>Can assist first-time bring-up (for example network peering and allowlists), scope to be agreed</li>
+        </ul></div>
+      </div>
+      <div class="foot">
+        <div class="acc"><strong>Accountable</strong><span class="pill z">ZaloPay</span> infrastructure, network, keys <span class="pill c">CleverTap</span> software, account enablement</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 1 -->
+  <div class="phase" id="phase-1">
+    <div class="rail"><div class="badge z">1</div><div class="line"></div></div>
+    <div class="card">
+      <div class="card-h"><h3>Swap real values for tokens</h3><span class="pill z">Led by ZaloPay</span></div>
+      <p class="sum">When a user registers, logs in or updates a profile, ZaloPay's backend swaps the real email and phone for tokens before anything goes to CleverTap. This all happens inside ZaloPay.</p>
+      <div class="cols">
+        <div>
+          <h4>What happens</h4>
+          <ul class="steps">
+            <li><span class="pill z">ZaloPay</span><span><b>1a</b>The app sends the real email and phone to ZaloPay's backend, as it does today.</span></li>
+            <li><span class="pill z">ZaloPay</span><span><b>1b</b>The backend calls the vault's Tokenize API over the private network. The vault encrypts the real value with AES-256, using a key from ZaloPay's own key management, and stores the pair.</span></li>
+            <li><span class="pill z">ZaloPay</span><span><b>1c</b>The vault returns a token shaped like an email or a phone number.</span></li>
+            <li><span class="pill z">ZaloPay</span><span><b>1d</b>The backend returns tokens to the app for every CleverTap-bound field.</span></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Where the real value is visible</h4>
+          <div class="sees">
+            <div class="row"><span class="pill z">ZaloPay</span><span class="chip real">VISIBLE</span><span class="where">app, backend, vault</span></div>
+            <div class="row"><span class="pill c">CleverTap</span><span class="chip none">NOT VISIBLE</span></div>
+            <div class="row"><span class="pill p">Provider</span><span class="chip none">NOT VISIBLE</span></div>
+          </div>
+          <p class="note">The app never calls the vault directly. Only ZaloPay's backend does.</p>
+        </div>
+        <div>
+          <h4>Sample data</h4>
+          <div class="sample">
+            <div class="kv"><span class="k">Email, real</span><code class="r">an.nguyen@example.vn</code><span class="k">Email, token</span><code class="t">k7q2x@example.info</code></div>
+            <div class="kv"><span class="k">Phone, real</span><code class="r">+84 912 345 678</code><span class="k">Phone, token</span><code class="t">+84 931 604 285</code></div>
+            <div class="kv"><span class="k">City (not tokenized)</span><code class="r">Ho Chi Minh City</code></div>
+            <span class="s-l">Illustrative values. Tokens keep the shape of the original.</span>
+          </div>
+        </div>
+      </div>
+      <div class="two">
+        <div class="zb"><h4>ZaloPay builds</h4><ul>
+          <li>Change register, login and profile-update APIs to call Tokenize and return tokens</li>
+          <li>Tokenize batch, file and server-to-server uploads before they reach CleverTap</li>
+          <li>Tokenize all existing user records once, then upload the tokens</li>
+          <li>Get an access token for vault calls (OAuth2 client credentials)</li>
+          <li>Plan a refresh path: expired tokens must be tokenized again</li>
+        </ul></div>
+        <div class="cb"><h4>CleverTap provides</h4><ul>
+          <li>The Tokenize and Detokenize API contract and documentation</li>
+          <li>CT Vault software, if ZaloPay picks it</li>
+          <li>No SDK change is needed, because tokens keep the shape of emails and phone numbers</li>
+          <li>Tokens are stable: the same value for the same user gives the same token</li>
+        </ul></div>
+      </div>
+      <div class="foot">
+        <div class="api"><code>Get access token (OAuth2)</code><code>POST /ct-vault/api/v2/tokenize</code><code>POST /ct-vault/api/v2/tokenize/batch</code></div>
+        <div class="acc"><strong>Accountable</strong><span class="pill z">ZaloPay</span> for tokenizing at the source and for everything in its vault</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase" id="phase-2">
+    <div class="rail"><div class="badge c">2</div><div class="line"></div></div>
+    <div class="card">
+      <div class="card-h"><h3>Tokens enter CleverTap</h3><span class="pill c">Led by CleverTap</span></div>
+      <p class="sum">ZaloPay sends tokens plus normal data to CleverTap. CleverTap stores them and marketing works as usual on non-PII attributes.</p>
+      <div class="cols">
+        <div>
+          <h4>What happens</h4>
+          <ul class="steps">
+            <li><span class="pill z">ZaloPay</span><span><b>2</b>The CleverTap SDK in the app, or ZaloPay's backend through the Upload User Profiles API, sends tokens and non-PII data. Backend upload is the preferred route.</span></li>
+            <li><span class="pill c">CleverTap</span><span>Stores the profile with tokens, flags it as tokenized and records which fields are tokens.</span></li>
+            <li><span class="pill c">CleverTap</span><span>Skips email and phone format checks for tokenized fields.</span></li>
+            <li><span class="pill z">ZaloPay</span><span>Marketing and growth build segments and journeys from tokens and non-PII fields.</span></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Where the real value is visible</h4>
+          <div class="sees">
+            <div class="row"><span class="pill z">ZaloPay</span><span class="chip real">VISIBLE</span><span class="where">vault only</span></div>
+            <div class="row"><span class="pill c">CleverTap</span><span class="chip tok">TOKEN ONLY</span><span class="where">stored as tokens</span></div>
+            <div class="row"><span class="pill p">Provider</span><span class="chip none">NOT VISIBLE</span></div>
+          </div>
+        </div>
+        <div>
+          <h4>Sample profile in CleverTap</h4>
+          <div class="sample">
+            <div class="kv"><span class="k">Email</span><code class="t">k7q2x@example.info</code></div>
+            <div class="kv"><span class="k">Phone</span><code class="t">+84 931 604 285</code></div>
+            <div class="kv"><span class="k">City</span><code class="r">Ho Chi Minh City</code></div>
+            <div class="kv"><span class="k">Flag</span><span>tokenized profile, fields: email, phone</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="two">
+        <div class="zb"><h4>ZaloPay does</h4><ul>
+          <li>Makes sure every CleverTap-bound field passes through Phase 1 first, including the one-time upload of existing users</li>
+          <li>Defines audiences from non-PII attributes such as city, device and behaviour</li>
+        </ul></div>
+        <div class="cb"><h4>CleverTap does</h4><ul>
+          <li>Stores tokens and non-PII data only, never raw email or phone</li>
+          <li>Runs segments, campaigns, journeys and analytics on that data</li>
+        </ul></div>
+      </div>
+      <div class="foot">
+        <div class="api"><code>Upload User Profiles API</code><code>CleverTap SDK</code></div>
+        <div class="acc"><strong>Accountable</strong><span class="pill c">CleverTap</span> for storing tokens only <span class="pill z">ZaloPay</span> for sending tokens only</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase" id="phase-3">
+    <div class="rail"><div class="badge j">3</div><div class="line"></div></div>
+    <div class="card">
+      <div class="card-h"><h3>A campaign sends</h3><span class="pill j">Hand-off between both</span></div>
+      <p class="sum">Example: a push or SMS campaign runs on 12 Dec 2026. CleverTap decides who gets it using tokens. ZaloPay's dispatcher turns the token back into the real value and hands the message to the provider.</p>
+      <div class="cols">
+        <div>
+          <h4>What happens</h4>
+          <ul class="steps">
+            <li><span class="pill c">CleverTap</span><span><b>3</b>The campaign triggers and finds qualifying users from tokens and non-PII data.</span></li>
+            <li><span class="pill c">CleverTap</span><span><b>4</b>CleverTap builds the message with tokens in a placeholder and posts it to ZaloPay's dispatcher over HTTPS.</span></li>
+            <li><span class="pill z">ZaloPay</span><span><b>5a</b>The dispatcher sends the tokens to the vault's Detokenize API, in batches.</span></li>
+            <li><span class="pill z">ZaloPay</span><span><b>5b</b>The vault returns the real values. This stays inside ZaloPay's network.</span></li>
+            <li><span class="pill z">ZaloPay</span><span><b>6a</b>The dispatcher sends the message with the real value to the provider.</span></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Where the real value is visible</h4>
+          <div class="sees">
+            <div class="row"><span class="pill z">ZaloPay</span><span class="chip real">VISIBLE</span><span class="where">vault, dispatcher</span></div>
+            <div class="row"><span class="pill c">CleverTap</span><span class="chip tok">TOKEN ONLY</span><span class="where">never receives the real value</span></div>
+            <div class="row"><span class="pill p">Provider</span><span class="chip real">VISIBLE</span><span class="where">needs it to deliver</span></div>
+          </div>
+          <p class="note">The provider's own location and contract also matter for data residency.</p>
+        </div>
+        <div>
+          <h4>Sample data</h4>
+          <div class="sample">
+            <div class="kv"><span class="k">Payload CleverTap sends</span><code class="t">to: ##TOKv1_a91c_END##</code></div>
+            <div class="kv"><span class="k">After ZaloPay's dispatcher</span><code class="r">to: +84 912 345 678</code></div>
+            <span class="s-l">Placeholder id is illustrative.</span>
+          </div>
+        </div>
+      </div>
+      <div class="two">
+        <div class="zb"><h4>ZaloPay does</h4><ul>
+          <li>Keeps the dispatcher reachable by CleverTap, with Basic Auth on the dispatch endpoint</li>
+          <li>Keeps the vault available (target 99.99% over 30 days) and fast: 50 or more concurrent connections, batches up to 500 tokens, answers within 60 seconds, retries with backoff</li>
+          <li>Allows Detokenize calls only from the dispatcher</li>
+          <li>Configures its chosen provider endpoint in the CleverTap dashboard</li>
+        </ul></div>
+        <div class="cb"><h4>CleverTap does</h4><ul>
+          <li>Builds the token payload and posts it to the dispatcher</li>
+          <li>If the dispatcher cannot be reached, records an on-prem unavailable error and retries</li>
+          <li>Ships the dispatcher software and its documentation</li>
+        </ul></div>
+      </div>
+      <div class="foot">
+        <div class="api"><code>POST {ZaloPay dispatcher}/api/v1/dispatch</code><code>POST /ct-vault/api/v2/detokenize</code><code>POST /ct-vault/api/v2/detokenize/batch</code></div>
+        <div class="acc"><strong>Accountable</strong><span class="pill z">ZaloPay</span> dispatcher and vault availability <span class="pill c">CleverTap</span> payload, retries, software quality</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 4 -->
+  <div class="phase" id="phase-4">
+    <div class="rail"><div class="badge z">4</div><div class="line"></div></div>
+    <div class="card">
+      <div class="card-h"><h3>Delivery status comes back</h3><span class="pill z">Led by ZaloPay</span></div>
+      <p class="sum">The provider reports delivered, failed, clicked or replied. ZaloPay's dispatcher turns any real value in that report back into a token before CleverTap sees it.</p>
+      <div class="cols">
+        <div>
+          <h4>What happens</h4>
+          <ul class="steps">
+            <li><span class="pill p">Provider</span><span><b>6b</b>The provider sends callbacks to ZaloPay's dispatcher. They may contain the real value.</span></li>
+            <li><span class="pill z">ZaloPay</span><span><b>7a</b>The dispatcher sends the real value to the vault.</span></li>
+            <li><span class="pill z">ZaloPay</span><span><b>7b</b>The vault returns the token.</span></li>
+            <li><span class="pill z">ZaloPay</span><span><b>8</b>The dispatcher forwards the status to CleverTap with tokens only.</span></li>
+            <li><span class="pill c">CleverTap</span><span>Updates campaign and journey reports. No raw value is held.</span></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Where the real value is visible</h4>
+          <div class="sees">
+            <div class="row"><span class="pill z">ZaloPay</span><span class="chip real">VISIBLE</span><span class="where">dispatcher, vault</span></div>
+            <div class="row"><span class="pill c">CleverTap</span><span class="chip tok">TOKEN ONLY</span><span class="where">tokens only</span></div>
+            <div class="row"><span class="pill p">Provider</span><span class="chip real">VISIBLE</span><span class="where">its own delivery record</span></div>
+          </div>
+        </div>
+        <div>
+          <h4>Sample data</h4>
+          <div class="sample">
+            <div class="kv"><span class="k">Provider reports to dispatcher</span><code class="r">+84 912 345 678 delivered</code></div>
+            <div class="kv"><span class="k">Dispatcher reports to CleverTap</span><code class="t">+84 931 604 285 delivered</code></div>
+          </div>
+        </div>
+      </div>
+      <div class="two">
+        <div class="zb"><h4>ZaloPay does</h4><ul>
+          <li>Points each provider's callback URL at the dispatcher and puts a web application firewall in front</li>
+          <li>Makes STOP and unsubscribe requests work through tokens</li>
+          <li>Keeps logs token-only, never raw values</li>
+        </ul></div>
+        <div class="cb"><h4>CleverTap does</h4><ul>
+          <li>Matches status to campaigns and journeys by message id</li>
+          <li>Shows delivery and engagement in reports</li>
+        </ul></div>
+      </div>
+      <div class="foot">
+        <div class="api"><code>{ZaloPay dispatcher}/api/v1/callback/{provider}</code><code>POST /ct-vault/api/v2/tokenize</code></div>
+        <div class="acc"><strong>Accountable</strong><span class="pill z">ZaloPay</span> callback endpoint and tokenizing statuses <span class="pill c">CleverTap</span> reporting</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 5 -->
+  <div class="phase" id="phase-5">
+    <div class="rail"><div class="badge j">5</div><div class="line"></div></div>
+    <div class="card">
+      <div class="card-h"><h3>Test, go live and run</h3><span class="pill j">Joint</span></div>
+      <p class="sum">Both teams prove the whole loop in a test, then watch it together once real traffic flows.</p>
+      <div class="cols" style="grid-template-columns:1fr 1fr">
+        <div>
+          <h4>Joint end-to-end test</h4>
+          <ul class="steps">
+            <li><span class="pill j">Joint</span><span>Token creation in the vault</span></li>
+            <li><span class="pill j">Joint</span><span>Token upload and storage in CleverTap</span></li>
+            <li><span class="pill j">Joint</span><span>Campaign and journey send through the dispatcher</span></li>
+            <li><span class="pill j">Joint</span><span>Provider callback and status in reports</span></li>
+            <li><span class="pill j">Joint</span><span>STOP and unsubscribe flow</span></li>
+            <li><span class="pill j">Joint</span><span>Confirm CleverTap holds only tokens and non-PII</span></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Watch continuously</h4>
+          <ul class="steps">
+            <li><span class="pill z">ZaloPay</span><span>Vault response time and error rates</span></li>
+            <li><span class="pill z">ZaloPay</span><span>Token creation, expiry and rotation logs</span></li>
+            <li><span class="pill z">ZaloPay</span><span>Dispatch speed, delivery times and retries</span></li>
+            <li><span class="pill j">Joint</span><span>A process for token resolution failures</span></li>
+            <li><span class="pill z">ZaloPay</span><span>Applies new dispatcher releases, which CleverTap ships as versioned packages</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot">
+        <div class="acc"><strong>Accountable</strong><span>Monitoring, upgrades and incident handling are agreed between the two teams as a short runbook before go-live.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="accountability">
+  <h2>Who is accountable for what</h2>
+  <p class="lede">CleverTap's public documentation sets out the core split: the customer tokenizes, hosts the vault and infrastructure, and handles unsubscribes and audit logs. CleverTap provides the vault API, supports the on-prem dispatcher and stores only tokens. The detail below builds on that and is the working split for both teams to agree.</p>
+
+  <div class="own3">
+    <div class="zt"><span class="pill z">ZaloPay is accountable for</span>
+      <ul>
+        <li>Real customer data and the encryption key</li>
+        <li>The vault and the dispatcher, including uptime and security</li>
+        <li>Tokenizing at the source, existing users and every upload</li>
+        <li>Network rules, certificates and token-only logs</li>
+        <li>Provider contracts and callback setup</li>
+        <li>STOP and unsubscribe handling through tokens</li>
+      </ul></div>
+    <div class="ctt"><span class="pill c">CleverTap is accountable for</span>
+      <ul>
+        <li>Storing and processing tokens only</li>
+        <li>Vault and dispatcher software, packages and documentation</li>
+        <li>The Tokenize and Detokenize API contract</li>
+        <li>Account enablement and tokenized field setup</li>
+        <li>Campaign logic, retries and reporting</li>
+        <li>Support during bring-up and operation</li>
+      </ul></div>
+    <div class="jt"><span class="pill j">Accountable together</span>
+      <ul>
+        <li>End-to-end test before go-live</li>
+        <li>Incident path when a send fails</li>
+        <li>Upgrade windows for the dispatcher</li>
+        <li>The monitoring and escalation runbook</li>
+      </ul></div>
+  </div>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Area</th><th>ZaloPay</th><th>CleverTap</th><th>Accountable (proposed)</th></tr></thead>
+    <tbody>
+      <tr><td>Vault, keys, stored data</td><td>Hosts the vault and database. Holds the AES-256 key in its own key management. CleverTap has no access to it.</td><td>Supplies CT Vault software if chosen. A ZaloPay vault must follow CleverTap's API contract.</td><td><span class="pill z">ZaloPay</span></td></tr>
+      <tr><td>Tokenizing at the source</td><td>Changes backend and gateway, tokenizes uploads and existing users, handles token expiry.</td><td>Publishes API contract and docs. Answers integration questions.</td><td><span class="pill z">ZaloPay</span></td></tr>
+      <tr><td>Dispatcher</td><td>Hosts, runs, secures, monitors and upgrades it.</td><td>Builds and ships the software, images and charts. Posts campaign payloads to it.</td><td><span class="pill z">ZaloPay</span> running it <span class="pill c">CleverTap</span> software</td></tr>
+      <tr><td>Infrastructure and uptime</td><td>Provisions the stack from the sizing sheet and runs it with redundancy.</td><td>Provides the sizing sheet and component list.</td><td><span class="pill z">ZaloPay</span></td></tr>
+      <tr><td>Network and security</td><td>Private Tokenize, allowlisted Detokenize on its own subnet, HTTPS with valid certificates, firewall on callbacks, token-only logs.</td><td>Provides the security checklist.</td><td><span class="pill z">ZaloPay</span></td></tr>
+      <tr><td>CleverTap platform data</td><td>Sends tokens only.</td><td>Stores tokens only. Runs segments, campaigns, journeys and analytics.</td><td><span class="pill c">CleverTap</span></td></tr>
+      <tr><td>Account enablement</td><td>Chooses the fields and shares the dispatcher URL and key.</td><td>Switches tokenization on for the account and registers the dispatcher.</td><td><span class="pill c">CleverTap</span> setup <span class="pill z">ZaloPay</span> field choices</td></tr>
+      <tr><td>Providers and callbacks</td><td>Contracts with providers, configures them in the dashboard, points callbacks to the dispatcher.</td><td>Maintains the supported provider list.</td><td><span class="pill z">ZaloPay</span></td></tr>
+      <tr><td>STOP and unsubscribe</td><td>Makes requests work through tokens.</td><td>Joins the end-to-end test.</td><td><span class="pill z">ZaloPay</span> build <span class="pill j">Joint</span> test</td></tr>
+      <tr><td>Monitoring, upgrades, incidents</td><td>Watches vault and dispatcher. Applies releases.</td><td>Watches the CleverTap platform. Supports upgrades and escalations.</td><td><span class="pill j">To be agreed</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="build">
+  <h2>What ZaloPay needs to build and run</h2>
+  <p class="lede">Most of the build effort sits on ZaloPay's side. CleverTap shares a sizing sheet based on ZaloPay's scale, and the two teams then agree the delivery plan and timeline together.</p>
+
+  <div class="teams">
+    <div class="team"><span class="pill z">Backend and API</span>
+      <ul>
+        <li>Call Tokenize from register, login and profile-update flows</li>
+        <li>Return tokens in API responses for CleverTap-bound fields</li>
+        <li>Tokenize batch, file and server-to-server uploads</li>
+        <li>Tokenize existing users and upload them once</li>
+        <li>Refresh path for expired tokens</li>
+      </ul></div>
+    <div class="team"><span class="pill z">Infrastructure and DevOps</span>
+      <ul>
+        <li>Provision the stack in Vietnam, two instances of each part</li>
+        <li>Deploy vault and dispatcher from CleverTap's images and charts</li>
+        <li>Monitoring and alerts for the vault and dispatcher</li>
+        <li>Apply dispatcher releases</li>
+      </ul></div>
+    <div class="team"><span class="pill z">Security and compliance</span>
+      <ul>
+        <li>Key management for the vault key</li>
+        <li>Network zones: private Tokenize, allowlisted Detokenize</li>
+        <li>Certificates, firewall in front of callbacks</li>
+        <li>Token-only logging and audit trail</li>
+      </ul></div>
+    <div class="team"><span class="pill z">Product, marketing and growth</span>
+      <ul>
+        <li>Choose which fields are tokenized</li>
+        <li>Confirm channels and providers</li>
+        <li>Plan audiences on non-PII attributes</li>
+        <li>Review the limitations below before campaigns are designed</li>
+      </ul></div>
+  </div>
+
+  <h3 style="margin-top:34px">Example infrastructure for ZaloPay's side</h3>
+  <p class="lede">CleverTap's reference sizing for roughly 500,000 to 1,000,000 users. ZaloPay's sizing is confirmed in a sheet built on its own scale and replaces these figures. Red Hat Linux, ARM64 or x86_64, 10 Gbps class network.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Component</th><th>Software</th><th class="num">vCPU</th><th class="num">RAM (GB)</th><th class="num">Disk (GB)</th><th class="num">Instances</th></tr></thead>
+    <tbody>
+      <tr><td>Message dispatcher</td><td>CleverTap</td><td class="num">4</td><td class="num">8 to 20</td><td class="num">20</td><td class="num">2</td></tr>
+      <tr><td>Token resolver</td><td>CleverTap</td><td class="num">8</td><td class="num">32</td><td class="num">20</td><td class="num">2</td></tr>
+      <tr><td>Token database</td><td>Postgres</td><td class="num">8</td><td class="num">64</td><td class="num">50 or more</td><td class="num">2</td></tr>
+      <tr><td>Cache</td><td>Redis</td><td class="num">8</td><td class="num">64</td><td class="num">20 or more</td><td class="num">2</td></tr>
+      <tr><td>Authentication server</td><td>Keycloak</td><td class="num">8</td><td class="num">32</td><td class="num">20</td><td class="num">2</td></tr>
+      <tr><td>Authentication database</td><td>Postgres</td><td class="num">16</td><td class="num">64</td><td class="num">50 or more</td><td class="num">2</td></tr>
+      <tr><td>Kubernetes or OpenShift nodes</td><td>Platform</td><td class="num">4</td><td class="num">8</td><td class="num">20</td><td class="num">2</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">The illustrative total is about 110 vCPU and 540 GB RAM or more. CleverTap confirms the final component list in the sizing sheet.</p>
+</section>
+
+<section id="limits">
+  <h2>What changes for marketing, product and growth</h2>
+  <p class="lede">Because CleverTap holds tokens instead of real values, a few everyday actions work differently.</p>
+  <div class="grid3">
+    <div class="ok"><span class="pill j">Works as usual</span>
+      <ul>
+        <li>Segments, campaigns and journeys on non-PII fields such as city, device and behaviour</li>
+        <li>Email, SMS, WhatsApp and push personalisation, because tokenized values are resolved just before the message is dispatched</li>
+        <li>Remarketing audiences on Meta, TikTok and Google Ads</li>
+        <li>In-app, inbox, native display and web push campaigns. They do not need a real value to run. A token is only involved when a campaign qualifies users on a tokenized field, for example one specific person by email.</li>
+        <li>Campaign and journey reports and analytics</li>
+      </ul></div>
+    <div class="diff"><span class="pill j">Works differently</span>
+      <ul>
+        <li>Segments on tokenized fields match the token, not the real value. To target one person by email or phone, use their token.</li>
+        <li>You cannot look up a user by email or phone in the dashboard</li>
+        <li>Message preview does not show the real value</li>
+        <li>De-duplication is not supported in the current release</li>
+        <li>Each send adds a little time for the vault lookup</li>
+        <li>Exports contain tokens, as designed. Plan for this early if ZaloPay relies on exports.</li>
+        <li>Tokens expire and must be tokenized again</li>
+      </ul></div>
+    <div class="no"><span class="pill j">Not available or limited</span>
+      <ul>
+        <li>Personalising online channels (in-app, inbox, native display, web push, pop-ups) with a tokenized value. This is by design: it would mean resolving the real value before it reaches the device, and the real value never reaches CleverTap. Use non-PII fields for on-screen personalisation.</li>
+        <li>Email by SMTP, and providers outside the supported list</li>
+        <li>Webhooks</li>
+        <li>Message archiving with tokenization</li>
+      </ul></div>
+  </div>
+
+  <h3 style="margin-top:34px">Supported channels and providers today</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Channel</th><th>Supported</th><th>Not supported</th></tr></thead>
+    <tbody>
+      <tr><td>Push</td><td>FCM, APNs</td><td>Huawei, Baidu</td></tr>
+      <tr><td>SMS</td><td>Generic, Netcore (Generic RCS through the generic SMS path)</td><td>Twilio, Nexmo, other providers</td></tr>
+      <tr><td>Email</td><td>SendGrid (HTTP API), Netcore</td><td>SMTP including SES SMTP, Infobip</td></tr>
+      <tr><td>WhatsApp</td><td>Generic</td><td>Gupshup, Nexmo, CleverTap WhatsApp</td></tr>
+      <tr><td>Remarketing</td><td>Meta, TikTok, Google Ads</td><td>Other ad networks</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Share ZaloPay's exact providers so they can be matched against this list before scoping is final.</p>
+</section>
+
+<section id="sources">
+  <h2>Public documentation</h2>
+  <div class="src">
+    <div>PII Tokenization: <a href="https://docs.clevertap.com/docs/pii-tokenization" target="_blank" rel="noopener">https://docs.clevertap.com/docs/pii-tokenization</a></div>
+  </div>
+</section>
+
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('flowsvg');
+  var note=document.getElementById('fnote');
+  var btns=document.querySelectorAll('.focus button');
+  var notes={
+    all:'All phases shown. Redrawn from the documented steps in CleverTap\'s Zero PII integration guide and on-prem architecture page.',
+    '0':'Phase 0, set up. ZaloPay prepares the backend, key management, vault and dispatcher in Vietnam. CleverTap enables the account and registers the dispatcher.',
+    '1':'Phase 1, tokenize. Everything happens inside ZaloPay. The app talks only to ZaloPay\'s backend, and only the backend talks to the vault.',
+    '2':'Phase 2, into CleverTap. Tokens and non-PII data reach CleverTap through the SDK or a backend upload.',
+    '3':'Phase 3, send. CleverTap sends a token payload to ZaloPay\'s dispatcher. The dispatcher gets the real value from the vault and sends it to the provider.',
+    '4':'Phase 4, status back. The provider reports to ZaloPay\'s dispatcher. The dispatcher tokenizes again and CleverTap receives tokens only.'
+  };
+  btns.forEach(function(b){
+    b.addEventListener('click',function(){
+      var f=b.getAttribute('data-f');
+      btns.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});
+      if(f==='all'){svg.removeAttribute('data-focus');}else{svg.setAttribute('data-focus',f);}
+      note.textContent=notes[f];
+    });
+  });
+})();
+</script>
+
+</body></html>
